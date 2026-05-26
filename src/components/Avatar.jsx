@@ -1,3 +1,4 @@
+import { useState, useRef } from "react";
 import theme from "../styles/theme";
 
 const styles = {
@@ -25,6 +26,10 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     border: "2px solid #F4F5F7",
+    cursor: "pointer",
+  },
+  hiddenInput: {
+    display: "none",
   },
 };
 
@@ -53,20 +58,44 @@ function DefaultAvatar() {
   );
 }
 
-export default function Avatar({ src, showBadge = true }) {
+export default function Avatar({ showBadge = true }) {
+  const [preview, setPreview] = useState(null);
+  const inputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+  };
+
   return (
     <div style={styles.wrapper}>
       <div style={styles.circle}>
-        {src ? (
-          <img src={src} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        {preview ? (
+          <img
+            src={preview}
+            alt="avatar"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
         ) : (
           <DefaultAvatar />
         )}
       </div>
+
       {showBadge && (
-        <div style={styles.badge}>
-          <CameraIcon />
-        </div>
+        <>
+          <div style={styles.badge} onClick={() => inputRef.current.click()}>
+            <CameraIcon />
+          </div>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            style={styles.hiddenInput}
+            onChange={handleFileChange}
+          />
+        </>
       )}
     </div>
   );
